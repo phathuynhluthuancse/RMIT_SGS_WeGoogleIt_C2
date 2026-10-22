@@ -3,28 +3,30 @@
 
 ## Project T-link:
 
-T-link is a secure, role-based document vault where sensitive company files are encrypted line by line, requiring multi-party quorum approvals to read or rewrite sensitive data.
+T-link is a secure, role-based document vault for organizations that need to share sensitive files without giving anyone unilateral access to everything. It lets a single document contain mixed sensitivity levels, so public, staff-only, and executive-only information can live side by side while access stays tightly controlled.
 
 Built with [TideCloak](https://tide.org/tidecloak?utm_source=github&utm_medium=readme&utm_campaign=unlocked).
 
 ### 1. Vision & originality
 
-We’re introducing a granular document security model where files aren't just locked as a whole—instead, individual lines carry different security levels. Traditional access control is often an all-or-nothing affair, but T-link lets organizations securely mix public, staff-only, and executive-only data within the exact same document, backed by multi-role approval workflows.
+The idea is distinctive because it removes the usual all-or-nothing document model. Instead of trusting one administrator, one backend, or one workspace owner to decide who can read or rewrite sensitive content, T-link uses TideCloak to enforce role-aware access and multi-party quorum approvals around protected data.
+
 
 ### 2. Trust constraint insight
 
-Today, sharing sensitive reports usually means stripping out details or trusting people with full documents they only need a peek at. This creates massive data leak risks. When you remove that constraint with line-by-line cryptographic masking and team-based sign-offs, teams can collaborate safely on sensitive files (like payroll or acquisition term sheets) without over-exposing confidential data.
+This matters anywhere sensitive company information needs to move between HR, finance, executives, and other internal teams. For example, an HR manager can view a directory while personal details remain sealed unless the right approvals are present. That makes it possible to collaborate on payroll, internal reporting, or confidential planning without exposing more than each role needs.
 
 ### 3. Value & impact
 
-HR professionals, finance leads, and executives benefit by retaining strict compliance without grinding daily operations to a halt. For instance, an HR manager can look at an employee directory while sensitive home addresses and phone numbers stay sealed until the proper multi-party approvals are unlocked.
+HR professionals, finance leads, and executives benefit by retaining strict compliance without grinding daily operations to a halt. For instance, an HR manager can look at an employee directory while sensitive home addresses and phone numbers stay sealed until the proper multi-party approvals are unlocked. When you remove that constraint with line-by-line cryptographic masking and team-based sign-offs, teams can collaborate safely on sensitive files (like payroll or acquisition term sheets) without over-exposing confidential data.
 
 ### 4. Why TideCloak matters
 
-TideCloak serves as the foundational security layer for T-link by replacing vulnerable password-based logins with passwordless authentication. By establishing tamper-proof user identity and strictly enforcing role assignments TideCloak ensures that multi-party quorum approvals cannot be forged or bypassed. This enables client-side AES-GCM decryption of sensitive document lines only when genuine, cryptographically verified authorizations are granted.
+TideCloak is what makes the model credible. It protects identities, access rights, and sensitive document content so the platform does not need universal plaintext access or a single administrator with god-mode over company data. The result is a vault where authority is shared by policy, not concentrated in one place.
+
 ### 5. Prototype & storytelling
 
-The interactive prototype demonstrates a fully functional multi-role workspace featuring six pre-loaded encrypted documents across HR, Finance, and Executive categories. Judges can test the system by logging into different demo accounts to see how visibility levels dynamically adjust permissions in real time. Users can submit access requests for sealed document lines, switch accounts to fulfill required multi-party quorum approvals, and track live updates in the audit log and approval inbox.
+Our prototype demonstrates role-based document viewing and protected access to sensitive lines inside the same file, along with quorum-gated actions for reading or changing restricted content.
 
 ## Setup
 
