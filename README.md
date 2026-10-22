@@ -4,6 +4,7 @@
 ## Project T-link:
 
 T-link is a secure, role-based document vault where sensitive company files are encrypted line by line, requiring multi-party quorum approvals to read or rewrite sensitive data.
+
 Built with [TideCloak](https://tide.org/tidecloak?utm_source=github&utm_medium=readme&utm_campaign=unlocked).
 
 ### 1. Vision & originality
