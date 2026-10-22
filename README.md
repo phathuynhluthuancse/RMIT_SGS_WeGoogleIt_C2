@@ -29,6 +29,6 @@ The interactive prototype demonstrates a fully functional multi-role workspace f
 ## Setup
 
 To run the prototype locally:
-1.Clone the repository.
-2.Open index.html in your web browser or serve it via a local development server (e.g., npx serve or Live Server).
-3.Sign in using any of the built-in demo accounts (password for all is demo1234).
+1.Clone the repository. 
+2.Open index.html in your web browser or serve it via a local development server. 
+3.Sign in using any of the built-in demo accounts (password for all is demo1234). 
