@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>T-Link: secure documents</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9edf0;--panel:#f9fafb;--ink:#14202a;--mute:#4a5966;--line:#b8c3cc;--seal:#9c1f23;--ok:#1f6a45;--brass:#7a5d0f;--cipher:#dde3e8;--btn:#14202a;--btnt:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a21;--panel:#1b2630;--ink:#eef3f7;--mute:#a9b8c4;--line:#3b4a56;--seal:#ff8a8d;--ok:#7fdca8;--brass:#e2c26e;--cipher:#26323d;--btn:#eef3f7;--btnt:#121a21}}
+:root[data-theme="dark"]{--bg:#121a21;--panel:#1b2630;--ink:#eef3f7;--mute:#a9b8c4;--line:#3b4a56;--seal:#ff8a8d;--ok:#7fdca8;--brass:#e2c26e;--cipher:#26323d;--btn:#eef3f7;--btnt:#121a21}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Public Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;margin:0;font-weight:600}
+h1{font-size:30px}h2{font-size:21px;margin-bottom:10px}h3{font-size:17px;margin:14px 0 6px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:var(--panel);padding:8px;z-index:9}
+.top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+.badge{display:inline-block;border:1px solid var(--brass);color:var(--brass);padding:0 8px;border-radius:12px;font-size:14px;margin-left:8px}
+main{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 24px 32px;max-width:1400px;margin:0 auto}
+@media(max-width:1000px){main{grid-template-columns:1fr;padding:12px}.top{padding:12px}#inboxwrap{order:-1}}
+section,.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;min-width:0}
+.stack{display:grid;gap:16px;align-content:start}
+.next{grid-column:1/-1;background:var(--panel);border:2px solid var(--brass);border-radius:4px;padding:12px 16px;font-weight:500}
+@media(max-width:1000px){.next{grid-column:auto}}
+.doc{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);padding:12px;margin-bottom:8px;border-radius:4px;font:inherit;cursor:pointer;min-height:44px}
+.doc[aria-current="true"]{border:2px solid var(--seal)}
+.doc b{font-family:"Source Serif 4",Georgia,serif;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;font-size:14px;color:var(--mute);align-items:center}
+.chip{border:1px solid var(--line);padding:0 8px;border-radius:12px;color:var(--ink)}
+.cipher{background:var(--cipher);padding:12px;border-radius:4px;font:13px/1.5 ui-monospace,Menlo,monospace;word-break:break-all;color:var(--mute);max-height:120px;overflow:hidden}
+.plain{font-family:"Source Serif 4",Georgia,serif;font-size:19px;line-height:1.65;white-space:pre-wrap;background:var(--bg);color:var(--ink);padding:26px 32px;border:1px solid var(--line);border-top:5px solid var(--ok)}
+textarea{width:100%;min-height:170px;font:18px/1.5 "Source Serif 4",Georgia,serif;padding:10px;border:2px solid var(--ok);background:var(--bg);color:var(--ink);border-radius:4px}
+input,select{font:inherit;padding:10px;min-height:44px;width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--mute);border-radius:4px}
+label{display:block;font-weight:500;margin:12px 0 4px}label.r{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0;font-weight:400}
+label.r input{width:22px;height:22px;min-height:0}
+.btn{border:2px solid var(--btn);background:var(--btn);color:var(--btnt);padding:10px 16px;min-height:44px;border-radius:4px;font:inherit;font-weight:600;cursor:pointer;margin:8px 8px 0 0}
+.btn.alt{background:transparent;color:var(--ink);border-color:var(--ink)}.btn.bad{background:var(--seal);border-color:var(--seal);color:var(--bg)}
+:is(.btn,.doc,input,select,textarea,summary):focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.req{border:1px solid var(--line);border-radius:4px;padding:12px;margin-bottom:10px;font-size:16px}
+.ok{color:var(--ok);font-weight:600}.no{color:var(--seal);font-weight:600}.st,.empty{color:var(--mute)}
+.log{max-height:260px;overflow:auto;font-size:15px}.log div{padding:6px 0;border-bottom:1px solid var(--line)}.log time{color:var(--mute);margin-right:6px}
+summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+.cat{display:inline-block;font-size:13px;font-weight:600;color:var(--ink);padding:0 8px;border-radius:12px;border:1px solid var(--line);margin-right:6px}.pill{font-size:13px;font-weight:600;padding:0 8px;border-radius:12px;border:1px solid var(--line)}.pill.open{color:var(--ok);border-color:var(--ok)}.row{display:flex;justify-content:space-between;gap:8px;align-items:start}.avatar{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--btn);color:var(--btnt);font-weight:600;margin-right:8px}
+.page{position:relative;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:26px 32px 34px;border-radius:2px;min-height:270px;overflow:hidden}.pagehead{display:flex;justify-content:space-between;gap:8px;font:600 14px "Public Sans",sans-serif;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:18px}.pagehead span{color:var(--seal)}.bar{display:block;height:14px;background:#1f2933;border-radius:2px;margin:0 0 12px}.lock{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--panel);border:2px solid var(--seal);color:var(--seal);padding:14px 22px;border-radius:6px;text-align:center;display:grid;gap:2px;justify-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25);width:max-content;max-width:85%}.lock span{color:var(--ink);font-size:14px}
+.list{border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:10px}.docrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-left:5px solid transparent;background:transparent;color:var(--ink);padding:10px 12px;font:inherit;cursor:pointer;min-height:52px}.docrow:last-child{border-bottom:0}.docrow[aria-current="true"]{background:var(--cipher);font-weight:600}.docrow .t{flex:1;min-width:0}.docrow small{display:block;color:var(--mute);font-weight:400;font-size:14px}.docrow:focus-visible{outline:3px solid var(--brass);outline-offset:-3px}.count{color:var(--mute);font-size:14px;margin:8px 0 0}
+.mask{font-family:"Source Serif 4",Georgia,serif;font-size:19px;line-height:1.65;white-space:pre-wrap;word-break:break-all;color:var(--ink);letter-spacing:.06em;user-select:none}.w{display:inline-grid}.w>span{grid-area:1/1}.m{animation:mo .5s ease forwards}.r{opacity:0;animation:ri .5s ease forwards}@keyframes mo{to{opacity:0}}@keyframes ri{to{opacity:1}}@media (prefers-reduced-motion:reduce){.m{display:none}.r{opacity:1;animation:none}}
+.rev .m{opacity:0;animation:ri .5s ease forwards}.rev .r{opacity:1;animation:mo .5s ease forwards}@media (prefers-reduced-motion:reduce){.rev .m{display:none}.rev .r{animation:none;opacity:1}}
+.btn,.docrow,input,select{transition:background-color .15s,transform .15s,border-color .15s}.btn:hover:not([disabled]){transform:translateY(-1px)}.docrow:hover{background:var(--cipher)}.btn[disabled]{opacity:.6;cursor:not-allowed}
+@media (prefers-reduced-motion:no-preference){.login{animation:rise .5s ease}.fade{animation:fin .3s ease}#toast{animation:tin .25s ease}.pulse{animation:pl 1.8s ease-in-out infinite}@keyframes rise{from{opacity:0;transform:translateY(14px)}}@keyframes fin{from{opacity:0;transform:translateY(6px)}}@keyframes tin{from{opacity:0;transform:translate(-50%,10px)}}@keyframes pl{50%{box-shadow:0 0 0 5px rgba(160,120,30,.3)}}}
+.gh{font:600 15px "Public Sans",system-ui,sans-serif;color:var(--mute);margin:16px 0 0}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);background:var(--panel);border-left:1px solid var(--line);z-index:20;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:19}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}.dh h2{margin:0}
+.tabs{display:flex;border-bottom:1px solid var(--line)}.tab{flex:1;border:0;background:transparent;color:var(--ink);padding:10px 2px;font:inherit;font-weight:500;cursor:pointer;min-height:48px;border-bottom:3px solid transparent}.tab[aria-selected="true"]{border-bottom-color:var(--seal);font-weight:600}.tab:focus-visible,.pbtn:focus-visible,.gbtn:focus-visible{outline:3px solid var(--brass);outline-offset:-3px}
+.dbody{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;min-height:0}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0}.msg{max-width:85%;align-self:flex-start}.msg.me{align-self:flex-end;text-align:right}.msg small{color:var(--mute);font-size:13px}.bub{background:var(--cipher);padding:8px 12px;border-radius:12px;display:inline-block;text-align:left}.msg.me .bub{background:var(--btn);color:var(--btnt)}
+.cform{display:flex;gap:8px;padding-top:10px}.cform input{flex:1}
+.peers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.pbtn{border:1px solid var(--line);background:transparent;color:var(--ink);padding:6px 12px;border-radius:20px;font:inherit;cursor:pointer;min-height:40px}.pbtn[aria-pressed="true"]{background:var(--btn);color:var(--btnt)}
+.sr{position:absolute;left:-999px}.nt{border-left:3px solid var(--brass);padding:6px 10px;margin-bottom:10px}.nt small{display:block;color:var(--mute)}
+.gh{margin:6px 0 0}.gbtn{display:flex;align-items:center;gap:6px;width:100%;border:0;background:transparent;color:var(--mute);font:600 15px "Public Sans",system-ui,sans-serif;cursor:pointer;padding:8px 0;min-height:44px;text-align:left}.chev{display:inline-block;transition:transform .2s}.gbtn[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.top{position:sticky;top:0;z-index:5}
+@media (prefers-reduced-motion:no-preference){.slide{animation:sl .25s ease}@keyframes sl{from{transform:translateX(30px);opacity:0}}}
+.vault{border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}.vhead{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--cipher);color:var(--seal)}.vhead div{display:grid;color:var(--ink)}.vhead span{font-size:14px;color:var(--mute)}.vrows{padding:6px 16px}.vrow{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}.vrow:last-child{border-bottom:0}.vrow{flex-wrap:wrap}.vl{flex:0 0 150px;font-size:13px;color:var(--mute)}.vl.okl{color:var(--ok);font-weight:600}.vtext{flex:1;min-width:200px;font-family:"Source Serif 4",Georgia,serif;font-size:17px}.sealed{display:block;height:28px;line-height:24px;padding:2px 10px;border-radius:5px;background:var(--cipher);color:var(--mute);letter-spacing:3px;font-size:13px;overflow:hidden;white-space:nowrap}.vneed{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}.chip.you{border-color:var(--ok);color:var(--ok);font-weight:600}
+.reqbox{border-top:1px solid var(--line);margin-top:16px;padding-top:4px}
+@media (prefers-reduced-motion:no-preference){.plain.fv{animation:unseal .5s ease-out}@keyframes unseal{from{filter:blur(7px);opacity:.35}}}
+.pill[class*="b-"]{--c:var(--mute);background:color-mix(in srgb,var(--c) 22%,var(--panel));color:var(--ink);border:1px solid var(--c);font-weight:600}
+.b-Direct,.b-Unlocked{--c:#2e8b57!important}.b-Public{--c:#2a6fb0!important}.b-Partlysealed{--c:#c98a10!important}.b-Readable{--c:#1f8a8a!important}.b-Open{--c:#6b4fa3!important}
+.plain,.vrows{position:relative;overflow:hidden}.wmo{position:absolute;inset:-40%;transform:rotate(-24deg);font:600 15px "Public Sans",sans-serif;line-height:2.6;color:var(--ink);opacity:.1;pointer-events:none;user-select:none;overflow:hidden;word-break:break-all}
+.dg{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}.dg>*{min-width:0}.dw{grid-column:1/-1}
+.rv{display:grid}.rv>*{grid-area:1/1}.rv>.sealed{animation:mo .6s ease forwards;animation-delay:var(--d)}.rv>.tx{opacity:0;animation:ri .6s ease forwards;animation-delay:var(--d)}
+.cl.vault .rv>.sealed{opacity:0;animation:ri .6s ease forwards;animation-delay:var(--d)}.cl.vault .rv>.tx{opacity:1;animation:mo .6s ease forwards;animation-delay:var(--d)}
+@media (prefers-reduced-motion:reduce){.rv>.sealed{display:none}.rv>.tx,.cl.vault .rv>.tx{opacity:1;animation:none}}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--btn);color:var(--btnt);padding:12px 18px;border-radius:4px;max-width:90vw;z-index:10;display:none}
+#toast.bad{background:var(--seal);color:var(--bg)}
+.login{max-width:420px;margin:4vh auto;padding:0 16px}.demo{display:grid;gap:8px;margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.next{animation:f .4s}@keyframes f{from{opacity:.4}}}
+</style></head><body>
+<a class="skip" href="#content">Skip to content</a>
+<div id="app"></div><div id="toast" role="status" aria-live="polite"></div>
+<script>
+const U={mina:{n:"Mina Tran",r:"secretary",e:"mina@demo.test"},dan:{n:"Dan Pike",r:"manager",e:"dan@demo.test"},lena:{n:"Lena Ortiz",r:"ceo",e:"lena@demo.test"},hana:{n:"Hana Sato",r:"hr",e:"hana@demo.test"},finn:{n:"Finn Moreau",r:"finance",e:"finn@demo.test"},ari:{n:"Ari Voss",r:"admin",e:"ari@demo.test"}};
+const RN={secretary:"Secretary",manager:"Manager",ceo:"CEO",hr:"HR",finance:"Finance",admin:"Admin"};
+const CAT={HR:"#2a7f8e",Finance:"#a0701b",Executive:"#6b4fa3",Legal:"#b0443d",Public:"#3d7a4a",Operations:"#4a6a8a"};let q="";const T0={mina:"Executive assistant",dan:"Operations manager",lena:"Chief executive",hana:"HR business partner",finn:"Finance lead",ari:"Systems administrator"};Object.keys(U).forEach(k=>U[k].t=T0[k]);let np=false,ntab="approvals",dmWith=null,draft="",col={},pslide=false,anim=false,sortBy="access",view="docs",cat="All",size="17",theme="system";
+const S={docs:[],reqs:[],props:[],log:[],open:{},g:{},notes:[],seen:{},vis:{},
+ chat:[{f:"lena",x:"Board prep is on Monday. Please check the Q3 plan before then.",t:"08:55"},{f:"hana",x:"Reminder: leave requests go to HR by the 15th.",t:"09:10"},{f:"ari",x:"Maintenance window tonight at 22:00. Sign out before then.",t:"09:30"}],
+ dm:{"dan|mina":[{f:"mina",x:"Hi Dan, could I get access to the acquisition term sheet for the Harbor call?",t:"09:05"}],"finn|hana":[{f:"finn",x:"Hana, please approve the payroll request when you can.",t:"09:20"}],"ari|lena":[{f:"lena",x:"Please review the access log before Friday.",t:"08:40"}]}};let me=null,sel="d1",nid=1,rq={cat:"",doc:"",act:"read",why:"",dur:"24"};
+const seed=[
+ {id:"d1",cat:"HR",title:"Employee directory",policy:{read:["hr", "manager"],rewrite:["hr", "ceo"]},lv:[0, 0, 0, 1, 2, 3],text:"Amara Okafor, Support Lead.\nBen Holloway, Engineer.\nSofia Reyes, Designer.\nPhone: Amara 555-0142, Ben 555-0177, Sofia 555-0119.\nHome: Amara 14 Willow Lane, Ben 88 Pier Street, Sofia 3 Orchard Court.\nAmara emergency contact: Chidi Okafor. Sofia visa renewal due in May."},
+ {id:"d2",cat:"Finance",title:"Payroll and salaries",policy:{read:["finance", "hr"],rewrite:["finance", "ceo"]},lv:[0, 1, 2, 3, 4],text:"Payroll runs on the 25th of each month.\nSalary bands: Support, Engineering and Design each have five pay grades.\nAmara Okafor: 78,000 per year. Sofia Reyes: 71,000 per year.\nBen Holloway: 92,000 per year, plus 8,000 retention bonus.\nExecutive team bonus pool this year: 240,000."},
+ {id:"d3",cat:"HR",title:"Disciplinary case file",policy:{read:["hr", "ceo"],rewrite:["hr", "ceo", "admin"]},lv:[0, 2, 2, 3],text:"Disciplinary cases are reviewed within 30 days.\nCase 2026-07: written warning issued to an employee in logistics for repeated expense report errors.\nHR recommends a follow-up review in 60 days.\nNo further action unless the pattern continues."},
+ {id:"d4",cat:"Executive",title:"Acquisition term sheet",policy:{read:["manager", "ceo"],rewrite:["manager", "ceo", "admin"]},lv:[0, 3, 3, 4],text:"Do not discuss this document outside the deal team.\nProject Harbor: offer of 41.5M for 100% of Northwind Freight.\nExclusivity runs 45 days.\nWalk-away price is 47M."},
+ {id:"d5",cat:"Finance",title:"Vendor contracts and bank details",policy:{read:["finance", "manager"],rewrite:["finance", "ceo"]},lv:[0, 2, 3],text:"Brightline Cloud renews in January.\nBrightline Cloud: 18,400 per month. Negotiate a 10% discount before the renewal date.\nPayment account for Summit Logistics: sort code 20-45-17, account ending 4821."},
+ {id:"d6",cat:"Executive",title:"Board meeting minutes",policy:{read:["ceo", "manager"],rewrite:["ceo", "manager", "admin"]},lv:[0, 2, 4],text:"The board approved hiring two support engineers in November.\nMarketing headcount is frozen until January.\nThe CEO will present the Harbor acquisition case at the next meeting."},
+ {id:"d7",cat:"Public",title:"T-Link handbook",public:"Welcome to T-Link. Core hours are 10:00 to 16:00, Monday to Friday. Remote work is allowed up to three days a week. Expense claims over 200 need manager sign-off. Guest wifi is on the T-Link-Guest network. Holidays follow the national calendar plus the last Friday of every month.",policy:{read:[],rewrite:[]},lv:[0],text:""},
+ {id:"d8",cat:"Public",title:"Press kit and T-Link facts",public:"T-Link was founded in 2014 and has 140 employees across three offices. We build freight scheduling software for mid-size carriers. Media enquiries go to press@t-link.example. Our logo and brand colours are free to use in coverage of T-Link.",policy:{read:[],rewrite:[]},lv:[0],text:""},
+ {id:"d9",cat:"Operations",title:"IT systems runbook",direct:{read:["admin","manager"],rewrite:[]},policy:{read:["admin","ceo"],rewrite:["admin","ceo"]},lv:[1, 2, 3],text:"Production servers run in three regions, with failover tested every quarter.\nBackups run nightly at 02:00 and are kept for 35 days.\nEmergency shutdown order: marketplace, scheduler, then database."},
+ {id:"d10",cat:"Operations",title:"Team rota and leave calendar",direct:{read:["secretary","manager","ceo","hr","finance","admin"],rewrite:[]},policy:{read:["manager"],rewrite:["manager","hr"]},lv:[1, 0, 0],text:"Support rota this week: Amara early shift, Ben late shift.\nThe office is closed on the last Friday of the month.\nLeave requests go to HR by the 15th."},
+ {id:"d11",cat:"Executive",title:"Executive calendar",direct:{read:["ceo","secretary"],rewrite:[]},policy:{read:["ceo","secretary"],rewrite:["ceo","secretary"]},lv:[3, 4, 3],text:"Monday: board preparation with the CEO.\nWednesday: Harbor diligence call at 14:00.\nFriday: investor dinner, car leaves at 18:30."},
+ {id:"d12",cat:"Operations",title:"Security audit summary",direct:{read:["admin","ceo"],rewrite:[]},policy:{read:["admin","ceo"],rewrite:["admin","ceo","manager"]},lv:[3, 2, 0],text:"The last access review found two unused admin accounts, now disabled.\nIn the phishing test, 9% of staff clicked. Retraining is booked for November.\nNo data breaches this year."},
+ {id:"d13",cat:"Legal",title:"Litigation hold and settlement file",direct:{read:["ceo"],rewrite:["ceo"]},policy:{read:["ceo","hr"],rewrite:["ceo"]},lv:[5, 5, 5, 5],text:"Matter 2026-14: former contractor claim over unpaid milestone fees.\nOutside counsel values the claim at 120,000 to 180,000.\nSettlement authority is capped at 150,000 and needs board sign-off.\nPreserve all contractor emails and invoices until counsel lifts the hold."}
+];
+const b64=u=>btoa(String.fromCharCode(...u));
+const RK={admin:0,secretary:1,hr:2,finance:2,manager:3,ceo:4};
+const LV={0:"Public",1:"Staff and above",2:"HR, Finance and above",3:"Managers and above",4:"CEO only",5:"Fully sealed, approval only"};
+const enc=async(d,x)=>{const iv=crypto.getRandomValues(new Uint8Array(12));return{iv,ct:new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},d.key,new TextEncoder().encode(x)))}};
+const dec=async(d,i)=>new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:d.ln[i].iv},d.key,d.ln[i].ct));
+async function seal(d,t){const L=t.split("\n"),old=d.lv||[];d.lv=L.map((_,i)=>old[i]??old[old.length-1]??2);d.ln=[];for(const x of L)d.ln.push(await enc(d,x));d.ver=(d.ver||0)+1}
+async function unseal(d){const o=[];for(let i=0;i<d.ln.length;i++)o.push(await dec(d,i));return o.join("\n")}
+const visOf=d=>S.vis[d.id+":"+d.ver+":"+RK[U[me].r]];let prepping=false;
+const fullRead=d=>{const v=visOf(d);return !!v&&v.every(x=>x!=null)};
+function fullView(d,g){const v=visOf(d);return `<p class="ok">Your role can read this whole document by default. No read request is needed.</p><div class="plain fv">${esc(v.join("\n"))}</div>`+(g==="rewrite"?`<button class="btn alt" onclick="openDoc('${d.id}','rewrite')">Open for rewrite</button>`:reqForm(d,1))}
+async function prep(){if(!me||prepping)return;prepping=true;const m=me,r=RK[U[m].r];let ch=false;for(const d of S.docs){const k=d.id+":"+d.ver+":"+r;if(!S.vis[k]){const v=await Promise.all(d.ln.map((l,i)=>d.lv[i]<=r?dec(d,i):null));if(me!==m){prepping=false;return}S.vis[k]=v;ch=true}}prepping=false;if(ch&&me===m)render()}
+function log(m,bad){S.log.unshift({t:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"}),m,bad});}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const doc=id=>S.docs.find(d=>d.id===id);
+const chips=(a)=>a.map(r=>`<span class="chip">${RN[r]}</span>`).join("");
+const prog=(x,need)=>need.map(r=>{const a=x.approvals.find(a=>a.role===r);return a?`<span class="ok">${RN[r]} approved (${U[a.by].n})</span>`:`<span class="st">${RN[r]} pending</span>`}).join(", ");
+async function init(){for(const s of seed){const d={...s,key:await crypto.subtle.generateKey({name:"AES-GCM",length:256},false,["encrypt","decrypt"])};await seal(d,s.text);delete d.text;S.docs.push(d)}
+ log("Documents and private sections encrypted line by line. Plaintext was discarded after sealing.");render()}
+function login(e){e.preventDefault();const em=document.getElementById("em").value.trim().toLowerCase(),pw=document.getElementById("pw").value;
+ const k=Object.keys(U).find(k=>U[k].e===em);if(!k||pw!=="demo1234"){document.getElementById("err").textContent="Email or password is wrong. Use one of the demo accounts below.";return}
+ me=k;view="dash";loadPrefs();log(`${U[k].n} signed in as ${RN[U[k].r]}.`);autoGrant();render();document.getElementById("content").focus()}
+function fill(k){document.getElementById("em").value=U[k].e;document.getElementById("pw").value="demo1234";document.getElementById("pw").focus()}
+function setQ(v){q=v;render();const i=document.getElementById("qs");i.focus();i.setSelectionRange(v.length,v.length)}
+function grant(x){const k=x.by+":"+x.docId;if(x.action==="rewrite"||!S.g[k])S.g[k]=x.action;x.status="used";(S.exp=S.exp||{})[k]=Date.now()+(x.hrs||24)*36e5;note(x.by,`Access granted: you can ${x.action} “${doc(x.docId).title}” until you sign out.`)}
+function logout(){log(`${U[me].n} signed out. Access to documents ended.`);Object.keys(S.g).filter(k=>k.startsWith(me+":")).forEach(k=>delete S.g[k]);me=null;np=false;draft="";dmWith=null;view="docs";q="";cat="All";theme="system";size="17";sortBy="access";applyPrefs();S.open={};S.vis={};render()}
+function toast(m,bad){const t=document.getElementById("toast");t.textContent=m;t.className=bad?"bad":"";t.style.display="block";clearTimeout(window._t);window._t=setTimeout(()=>t.style.display="none",5000)}
+function reqAccess(){const id=rq.doc,action=rq.act,why=rq.why.trim(),d=doc(id),need=d.policy[action],own=need.includes(U[me].r),g=S.g[me+":"+id];
+ if(g==="rewrite"||g===action){toast("You already have this access.");return}
+ if(!why){toast("Say why you need this document. Approvers will see your reason.",1);return}
+ if(S.reqs.some(x=>x.by===me&&x.docId===id&&x.action===action&&x.status==="pending")){toast("You already requested this. It is waiting for approvals.",1);return}
+ const x={id:nid++,docId:id,action,by:me,why,hrs:+rq.dur,approvals:own?[{role:U[me].r,by:me}]:[],status:"pending"};S.reqs.push(x);
+ log(`${U[me].n} asked to ${action} “${d.title}” (${d.cat}). Reason: ${why}`+(own?` ${RN[U[me].r]} owns this document, so that approval is already counted.`:""));
+ if(need.every(r=>x.approvals.some(a=>a.role===r))){grant(x);log(`Quorum met. ${U[me].n} can now ${action} “${d.title}”.`)}
+ else note(me,`Request sent for ${action} access to “${d.title}”. Waiting for ${need.filter(r=>!x.approvals.some(a=>a.role===r)).map(r=>RN[r]).join(" and ")}.`);
+ rq.why="";toast("Request sent to the approvers.");render()}
+function reqForm(d,g){
+ rq.doc=d.id;if(g)rq.act="rewrite";
+ const need=d.policy[rq.act],mine=U[me].r,o=(v,c,l)=>`<option value="${v}" ${v===c?"selected":""}>${l}</option>`;
+ const sent=S.reqs.some(x=>x.by===me&&x.docId===d.id&&x.action===rq.act&&x.status==="pending");
+ const rows=need.map(r=>{const k=Object.keys(U).find(k=>U[k].r===r);return `<li>${esc(U[k].n)}, ${RN[r]}${r===mine?` <span class="ok">(you, already counted)</span>`:""}</li>`}).join("");
+ return `<div class="reqbox"><h3>Request access to “${esc(d.title)}” (${d.cat})</h3>
+ <label for="ra">Access</label><select id="ra" onchange="rq.act=this.value;render()">${g?o("rewrite",rq.act,"Rewrite"):o("read",rq.act,"Read")+o("rewrite",rq.act,"Rewrite")}</select>
+ <p style="margin:14px 0 4px;font-weight:500">Approval needed from</p><ul style="margin:0;padding-left:20px">${rows}</ul>
+ <label for="rd">Access lasts for</label><select id="rd" onchange="rq.dur=this.value">${o("1",rq.dur,"1 hour")+o("24",rq.dur,"24 hours")+o("168",rq.dur,"7 days")}</select><label for="rwhy">Reason</label><textarea id="rwhy" style="min-height:90px;font-size:16px" oninput="rq.why=this.value" placeholder="What do you need it for?" ${sent?"disabled":""}>${esc(rq.why)}</textarea>
+ ${sent?`<button class="btn" disabled aria-disabled="true">${rq.act==="read"?"Read":"Rewrite"} request sent</button>`:`<button class="btn" onclick="reqAccess()">Send request</button>`}</div>`}
+function approve(kind,id){const list=kind==="req"?S.reqs:S.props,x=list.find(q=>q.id===id),role0=U[me].r;
+ const need=kind==="req"?doc(x.docId).policy[x.action]:["ceo","manager"];let role=effRoles(me).find(r=>need.includes(r)&&!x.approvals.some(a=>a.role===r))||role0;
+ if(x.by===me||!need.includes(role)||x.approvals.some(a=>a.role===role))return;
+ x.approvals.push({role,by:me});const d=doc(x.docId);if(kind==="req")note(x.by,`${U[me].n} (${RN[role]}) approved your ${x.action} request for “${d.title}”.`);
+ log(`${U[me].n} (${RN[role]}) approved ${kind==="req"?x.action+" request":"policy change"} on “${d.title}”.`);
+ if(need.every(r=>x.approvals.some(a=>a.role===r))){
+  if(kind==="req"){grant(x);log(`Quorum met. ${U[x.by].n} can now ${x.action} “${d.title}”.`)}
+  else{d.policy[x.action]=x.roles;x.status="applied";note(x.by,`Your ${x.action} policy change for “${d.title}” was applied after quorum.`);log(`Quorum met. ${x.action} policy for “${d.title}” is now ${x.roles.map(r=>RN[r]).join(" + ")}.`)}}
+ render()}
+async function openDoc(docId,mode){const g=S.g[me+":"+docId];if(!g||(mode==="rewrite"&&g!=="rewrite"))return;
+ S.open[docId]={text:await unseal(doc(docId)),edit:mode==="rewrite",fresh:true};log(`${U[me].n} opened “${doc(docId).title}” with existing approval.`);render()}
+async function save(id){const o=S.open[id],t=document.getElementById("ed").value;await seal(doc(id),t);
+ delete S.open[id];log(`${U[me].n} rewrote “${doc(id).title}” and re-encrypted it as version ${doc(id).ver}.`);render()}
+function closeDoc(id){const o=S.open[id];if(!o||o.closing)return;const t=doc(id).title,quick=o.edit;
+ const done=()=>{delete S.open[id];log(`${U[me]?U[me].n:"A user"} closed “${t}” and it was sealed again.`);render()};
+ if(quick){done();return}o.closing=true;render();setTimeout(done,o.text.split("\n").length*120+700)}
+function propose(){const id=document.getElementById("pd").value,a=document.getElementById("pa").value,
+ roles=[...document.querySelectorAll(".pr:checked")].map(c=>c.value);
+ if(!roles.length){toast("Pick at least one role for the new policy.",1);return}
+ S.props.push({id:nid++,docId:id,action:a,roles,by:me,approvals:[],status:"pending"});
+ log(`${U[me].n} proposed ${a} policy for “${doc(id).title}”: ${roles.map(r=>RN[r]).join(" + ")}.`);render()}
+function force(){log(`${U[me].n} tried to change a policy alone. Denied: it needs CEO and Manager approval.`,1);
+ toast("Denied. Policy changes need approval from the CEO and a manager. One admin can't push them through.",1);render()}
+function applyPrefs(){const r=document.documentElement;theme==="system"?r.removeAttribute("data-theme"):r.setAttribute("data-theme",theme);document.body.style.fontSize=size+"px"}
+function loadPrefs(){try{const p=JSON.parse(localStorage.getItem("tlink:"+me)||"null");if(p){U[me].n=p.n||U[me].n;U[me].t=p.t||U[me].t;theme=p.theme||"system";size=p.size||"17";sortBy=p.sort||"access"}}catch(e){}applyPrefs()}
+function autoGrant(){const t=[];S.docs.forEach(d=>{if(!d.direct)return;const m=dmode(d,U[me].r);if(m){S.g[me+":"+d.id]=m;t.push(d.title)}});if(t.length){log(`${U[me].n} has direct access, with no approval needed, to ${t.join(", ")}.`);note(me,`Direct access, no approval needed: ${t.join(", ")}.`)}}
+function setView(v){view=v;render();document.getElementById("content").focus()}
+function saveProfile(e){e.preventDefault();const g=i=>document.getElementById(i).value;const old=U[me].n;
+ U[me].n=g("pn").trim()||old;U[me].t=g("pt").trim();theme=g("ptheme");size=g("psize");applyPrefs();
+ try{localStorage.setItem("tlink:"+me,JSON.stringify({n:U[me].n,t:U[me].t,theme,size,sort:sortBy}))}catch(e){}
+ log(old===U[me].n?`${U[me].n} updated profile settings.`:`${old} changed their display name to ${U[me].n}.`);toast("Profile saved.");render()}
+function toggleTheme(){const dk=theme==="dark"||(theme==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);theme=dk?"light":"dark";applyPrefs();try{const p=JSON.parse(localStorage.getItem("tlink:"+me)||"{}");p.theme=theme;localStorage.setItem("tlink:"+me,JSON.stringify(p))}catch(e){}render()}
+function tb(){const role=U[me].r,dk=theme==="dark"||(theme==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);return `<div class="top"><div><b style="font-family:'Source Serif 4',Georgia,serif;font-size:22px">T-Link</b></div><div><span class="avatar" aria-hidden="true">${U[me].n.split(" ").map(w=>w[0]).join("")}</span>${esc(U[me].n)}<span class="badge">${RN[role]}</span> <button class="btn alt" style="margin:0 0 0 8px" onclick="np?(np=false,render()):openNotes()" aria-expanded="${np}" aria-label="Notifications${counts().total?", "+counts().total+" new":""}">Notifications${counts().total?` <span class="badge pulse">${counts().total}</span>`:""}</button><button class="btn alt" style="margin:0 0 0 8px" onclick="toggleTheme()" aria-label="Switch to ${dk?'light':'dark'} theme">${dk?"Light theme":"Dark theme"}</button><button class="btn alt" style="margin:0 0 0 8px" onclick="view='${view==='dash'?'docs':'dash'}';render()">${view==="dash"?"Documents":"Dashboard"}</button><button class="btn alt" style="margin:0 0 0 8px" onclick="setView('${view==="profile"?"docs":"profile"}')">${view==="profile"?"Back to documents":"Profile"}</button><button class="btn alt" style="margin:0 0 0 8px" onclick="logout()">Sign out</button></div></div>`}
+function reveal(t,o){const f=o.fresh,c=o.closing;o.fresh=false;let i=0;return t.split(/(\s+)/).map(w=>{if(!w.trim())return w;const d=i++*70;return f||c?`<span class="w${c?" rev":""}"><span class="m" aria-hidden="true" style="animation-delay:${d}ms">${"*".repeat(w.length)}</span><span class="r" style="animation-delay:${d}ms">${esc(w)}</span></span>`:esc(w)}).join("")}
+function pubView(d){return `<h2>${d.title}</h2><p><span class="cat" style="border-color:${CAT.Public}">Public</span><span class="st">Anyone signed in can read this page. No approval is needed.</span></p><div class="plain" style="border-top-color:var(--brass)">${esc(d.public)}</div>`}
+function dmode(d,r){if(!d.direct)return null;if(d.direct.rewrite.includes(r)&&d.policy.rewrite.every(x=>x===r))return"rewrite";return d.direct.read.includes(r)?"read":null}
+function isDirect(x){return !!dmode(x,U[me].r)}
+function setSort(v){sortBy=v;try{const p=JSON.parse(localStorage.getItem("tlink:"+me)||"{}");p.sort=v;localStorage.setItem("tlink:"+me,JSON.stringify(p))}catch(e){}render()}
+function row(x){const t=x.public?"Public":S.open[x.id]?"Open":isDirect(x)?"Direct":S.g[me+":"+x.id]?"Unlocked":fullRead(x)?"Readable":"Partly sealed";return `<button class="docrow" style="border-left-color:${CAT[x.cat]}" aria-current="${x.id===sel}" onclick="sel='${x.id}';rec('${x.id}');rq.act='read';anim=true;render()"><span class="t">${x.title}<small>${x.cat}, version ${x.ver}</small></span><span class="pill b-${t.replace(/ /g,"")}">${t}</span></button>`}
+function docList(L){if(!L.length)return `<p class="empty" style="padding:12px">No documents match.</p>`;const by=(a,b)=>a.title.localeCompare(b.title);let g;
+ if(sortBy==="access"){const b={Direct:[],Public:[],Sealed:[]};L.forEach(x=>b[x.public?"Public":isDirect(x)?"Direct":"Sealed"].push(x));g=[["Direct access, no approval needed",b.Direct.sort(by)],["Public, open to everyone",b.Public.sort(by)],["Sealed, needs approval",b.Sealed.sort(by)]]}
+ else if(sortBy==="type")g=Object.keys(CAT).map(c=>[c,L.filter(x=>x.cat===c).sort(by)]);
+ else g=[[null,[...L].sort(sortBy==="za"?(a,b)=>by(b,a):by)]];
+ const closed=h=>col[h]&&!q;const out=g.filter(x=>x[1].length).map(([h,a])=>(h?`<h3 class="gh"><button class="gbtn" aria-expanded="${!closed(h)}" onclick="col['${h}']=!col['${h}'];render()"><span class="chev" aria-hidden="true">▾</span>${h} (${a.length})</button></h3>`:"")+(closed(h)?"":`<div class="list">${a.map(row).join("")}</div>`)).join("");
+ return (groupKeys().length?`<button class="btn alt" style="min-height:36px;padding:4px 10px;margin:8px 0 0" onclick="allGroups()">${groupKeys().every(x=>col[x])?"Expand all":"Collapse all"}</button>`:"")+out}
+function nowt(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+function note(to,x){S.notes.push({to,x,t:nowt()})}
+function sn(){return S.seen[me]||(S.seen[me]={chat:0,notes:0,dm:{}})}
+function dk(p){return [me,p].sort().join("|")}
+function dmUnread(p){return (S.dm[dk(p)]||[]).slice(sn().dm[p]||0).filter(m=>m.f!==me).length}
+function pend(){const r=U[me].r;return S.reqs.filter(x=>x.status==="pending"&&x.by!==me&&effRoles(me).some(e=>doc(x.docId).policy[x.action].includes(e)&&!x.approvals.some(a=>a.role===e))).length+S.props.filter(x=>x.status==="pending"&&x.by!==me&&["ceo","manager"].includes(r)&&!x.approvals.some(a=>a.role===r)).length}
+function counts(){const q=sn(),ap=pend(),chat=S.chat.slice(q.chat).filter(m=>m.f!==me).length,acc=S.notes.filter(n=>n.to===me).length-q.notes;let dm=0;Object.keys(U).forEach(p=>{if(p!==me)dm+=dmUnread(p)});return{ap,chat,dm,acc,total:ap+chat+dm+acc}}
+function openNotes(t){np=true;pslide=true;if(t)ntab=t;render();const b=document.querySelector(".drawer .dh button");if(b)b.focus()}
+function focusIn(){const i=document.getElementById("cin");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}
+function send(e,kind){e.preventDefault();const t=draft.trim();if(!t)return;const me0=me;
+ if(kind==="chat")S.chat.push({f:me,x:t,t:nowt()});
+ else{const p=dmWith,k=dk(p);(S.dm[k]=S.dm[k]||[]).push({f:me,x:t,t:nowt()});
+  setTimeout(()=>{(S.dm[k]=S.dm[k]||[]).push({f:p,x:["Got it, thanks.","I will take a look shortly.","Understood. I will review it now.","Thanks for the heads up."][Math.floor(Math.random()*4)],t:nowt()});if(me===me0){render();focusIn()}},1400)}
+ draft="";render();focusIn()}
+function msgsHtml(a){return `<div class="msgs" id="msgs" aria-live="polite">${a.map(m=>`<div class="msg ${m.f===me?"me":""}"><small>${m.f===me?"You":U[m.f].n+", "+RN[U[m.f].r]}, ${m.t}</small><div class="bub">${esc(m.x)}</div></div>`).join("")||`<p class="empty">No messages yet. Say hello.</p>`}</div>`}
+function formHtml(kind){return `<form class="cform" onsubmit="send(event,'${kind}')"><label class="sr" for="cin">Message</label><input id="cin" value="${esc(draft)}" oninput="draft=this.value" placeholder="Write a message" autocomplete="off"><button class="btn" type="submit" style="margin:0">Send</button></form>`}
+function panel(items){if(!np)return "";const c=counts();let b="";
+ if(ntab==="approvals")b=items.join("")||`<p class="empty">No approvals are waiting for you.</p>`;
+ else if(ntab==="chat")b=msgsHtml(S.chat)+formHtml("chat");
+ else if(ntab==="dm")b=`<div class="peers">${Object.keys(U).filter(k=>k!==me).map(k=>`<button class="pbtn" aria-pressed="${k===dmWith}" onclick="dmWith='${k}';draft='';render()">${U[k].n.split(" ")[0]}, ${RN[U[k].r]}${dmUnread(k)?` <span class="badge">${dmUnread(k)}</span>`:""}</button>`).join("")}</div>`+msgsHtml(S.dm[dk(dmWith)]||[])+formHtml("dm");
+ else{const a=S.notes.filter(n=>n.to===me).slice().reverse();b=a.map(n=>`<div class="nt"><small>${n.t}</small>${esc(n.x)}</div>`).join("")||`<p class="empty">No document access updates yet.</p>`}
+ const tab=([k,l,n])=>`<button role="tab" class="tab" aria-selected="${k===ntab}" onclick="ntab='${k}';draft='';render()">${l}${n?` <span class="badge">${n}</span>`:""}</button>`;
+ return `<div class="scrim" onclick="np=false;render()"></div><aside class="drawer ${pslide?"slide":""}" role="dialog" aria-label="Notifications"><div class="dh"><h2>Notifications</h2><button class="btn alt" style="margin:0" onclick="np=false;render()">Close</button></div><div class="tabs" role="tablist">${[["approvals","Approvals",c.ap],["chat","Team chat",c.chat],["dm","Direct",c.dm],["access","Access",c.acc]].map(tab).join("")}</div><div class="dbody">${b}</div></aside>`}
+function groupKeys(){return sortBy==="access"?["Direct access, no approval needed","Public, open to everyone","Sealed, needs approval"]:sortBy==="type"?Object.keys(CAT):[]}
+function allGroups(){const k=groupKeys(),c=k.every(x=>col[x]);k.forEach(x=>col[x]=!c);render()}
+function render0(){
+ const app=document.getElementById("app");if(me)setTimeout(prep,0);
+ if(!me){app.innerHTML=`<div class="login" id="content" tabindex="-1"><h1>T-Link</h1><form class="card" onsubmit="login(event)"><label for="em" style="margin-top:0">Email</label><input id="em" type="email" autocomplete="username" required><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required><p id="err" class="no" role="alert"></p><button class="btn" type="submit" style="margin-top:0">Sign in</button></form><p class="st" style="margin:12px 0 4px">Demo accounts, password demo1234:</p><div style="display:flex;flex-wrap:wrap;gap:6px">${Object.keys(U).map(k=>`<button class="btn alt" type="button" style="margin:0;min-height:40px;padding:6px 12px" onclick="fill('${k}')">${U[k].n.split(" ")[0]}, ${RN[U[k].r]}</button>`).join("")}</div></div>`;return}
+if(view==="profile"){const u=U[me],o=(v,c,l)=>`<option value="${v}" ${v===c?"selected":""}>${l}</option>`;
+ app.innerHTML=`${tb()}<main id="content" tabindex="-1" style="grid-template-columns:1fr;max-width:640px"><section><h2>Profile and settings</h2>
+ <form onsubmit="saveProfile(event)"><label for="pn">Display name</label><input id="pn" value="${esc(u.n)}" maxlength="40" required>
+ <label for="pt">Job title</label><input id="pt" value="${esc(u.t||"")}" maxlength="50">
+ <label for="pe">Email</label><input id="pe" value="${u.e}" disabled><label for="pr">Role</label><input id="pr" value="${RN[u.r]}" disabled>
+ <p class="st">Your email and role are set by your administrator and cannot be edited here.</p>
+ <label for="ptheme">Colour theme</label><select id="ptheme">${o("system",theme,"Match my device")}${o("light",theme,"Light")}${o("dark",theme,"Dark")}</select>
+ <label for="psize">Text size</label><select id="psize">${o("17",size,"Normal")}${o("19",size,"Large")}${o("22",size,"Extra large")}</select>
+ <button class="btn" type="submit">Save changes</button><button class="btn alt" type="button" onclick="setView('docs')">Back to documents</button></form></section></main>`;return}
+ if(np){if(!dmWith||dmWith===me)dmWith=Object.keys(U).find(k=>k!==me);const q=sn();if(ntab==="chat")q.chat=S.chat.length;if(ntab==="access")q.notes=S.notes.filter(n=>n.to===me).length;if(ntab==="dm")q.dm[dmWith]=(S.dm[dk(dmWith)]||[]).length}
+ const role=U[me].r,d=doc(sel),o=S.open[d.id];
+ const items=[];
+ S.reqs.filter(x=>x.status==="pending"&&x.by!==me&&effRoles(me).some(e=>doc(x.docId).policy[x.action].includes(e)&&!x.approvals.some(a=>a.role===e))).forEach(x=>items.push(`<div class="req"><b>${U[x.by].n}</b> wants to ${x.action} “${doc(x.docId).title}” (${doc(x.docId).cat}).<br><span class="st">Reason: ${esc(x.why||"none given")}</span><br>${prog(x,doc(x.docId).policy[x.action])}<br><button class="btn" onclick="approve('req',${x.id})">Approve ${x.action}</button></div>`));
+ S.props.filter(x=>x.status==="pending"&&x.by!==me&&["ceo","manager"].includes(role)&&!x.approvals.some(a=>a.role===role)).forEach(x=>items.push(`<div class="req"><b>${U[x.by].n}</b> proposes ${x.action} policy for “${doc(x.docId).title}”: ${x.roles.map(r=>RN[r]).join(" + ")}.<br>${prog(x,["ceo","manager"])}<br><button class="btn" onclick="approve('prop',${x.id})">Approve change</button></div>`));
+ const ready=Object.keys(S.g).filter(k=>k.startsWith(me+":")),wait=S.reqs.filter(x=>x.by===me&&x.status==="pending");
+ const next=items.length?`You have ${items.length} approval${items.length>1?"s":""} waiting. Open notifications to review them.`:wait.length?"Your request is waiting for approvals. Sign in as another role to approve it.":ready.length?`You already have access to ${ready.length} document${ready.length>1?"s":""} until you sign out. Select one to open it, or request another.`:"Select a document, then request read or rewrite access.";
+ const mine=S.reqs.filter(x=>x.docId===d.id&&x.by===me&&x.status!=="used");
+ let v=`<h2>${d.title}</h2><p><span class="cat" style="border-color:${CAT[d.cat]}">${d.cat}</span><span class="st">${fullRead(d)?"":"Reading all lines needs "+d.policy.read.map(r=>RN[r]).join(" and ")+". "}Rewriting needs ${d.policy.rewrite.map(r=>RN[r]).join(" and ")}.</span></p>${[["read","Reading"],["rewrite","Rewriting"]].filter(([k])=>d.policy[k].includes(U[me].r)&&!(k==="read"&&fullRead(d))).map(([k,l])=>`<p class="ok">${l} as ${RN[U[me].r]}: your role is already counted. ${d.policy[k].length>1?"Only "+d.policy[k].filter(r=>r!==U[me].r).map(r=>RN[r]).join(" and ")+" must approve.":"No other approval is needed."}</p>`).join("")}`;
+ if(o){v+=o.edit?`<p class="ok">Rewrite approved. Edit the text, then save to re-encrypt.</p><label for="ed">Document text</label><textarea id="ed">${esc(o.text)}</textarea><button class="btn" onclick="save('${d.id}')">Save and re-encrypt</button><button class="btn alt" onclick="closeDoc('${d.id}')">Discard changes</button>`
+  :`${openRows(d,o)}<button class="btn alt" onclick="closeDoc('${d.id}')">Close and re-seal</button>`}
+ else if(fullRead(d)){v+=fullView(d,S.g[me+":"+d.id])}else{v+=`<div class="vault" role="group" aria-label="Document with some lines sealed"><div class="vhead"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><div><b>${visOf(d)?visOf(d).filter(x=>x!=null).length:0} of ${d.ln.length} lines readable for you</b><span>Public lines show for everyone, and higher roles see more by default. Sealed lines stay encrypted until the required roles approve.</span></div></div><div class="vrows">${d.ln.map((l,i)=>{const v=visOf(d),ok=v&&v[i]!=null;return `<div class="vrow"><span class="vl${ok?" okl":""}">${LV[d.lv[i]]}</span>${ok?`<span class="vtext">${esc(v[i])}</span>`:`<span class="sealed" style="width:${52+l.ct[0]%46}%">\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022</span>`}</div>`}).join("")}</div><div class="vneed"><span>To open every line, approval from</span>${d.policy.read.map(r=>`<span class="chip${r===role?" you":""}">${RN[r]}${r===role?" (you)":""}</span>`).join("")}</div></div>
+  ${(g=>g?`<p class="ok">${isDirect(d)?"Your role has direct access. No approval is needed.":"Approved. You can open this document until you sign out."}</p><button class="btn" onclick="openDoc('${d.id}','read')">Open document</button>${g==="rewrite"?`<button class="btn alt" onclick="openDoc('${d.id}','rewrite')">Open for rewrite</button>`:`${reqForm(d,1)}`}`:`${reqForm(d,0)}`)(S.g[me+":"+d.id])}`}
+ if(mine.length)v+=`<h3>Your requests</h3>`+mine.map(x=>`<div class="req"><b>${x.action==="read"?"Read":"Rewrite"}</b>: ${prog(x,d.policy[x.action])}<br>${x.status==="approved"?`<button class="btn" onclick="openDoc(${x.id})">${x.action==="read"?"Open document":"Open for rewrite"}</button>`:`<span class="st">Waiting for the approvals above.</span>`}</div>`).join("");
+ if(d.public)v=pubView(d);
+ const admin=role==="admin"?`<section><h2>Change a policy</h2><label for="pd">Document</label><select id="pd">${S.docs.filter(x=>!x.public).map(x=>`<option value="${x.id}">${x.title}</option>`).join("")}</select>
+  <label for="pa">Applies to</label><select id="pa"><option value="read">Reading</option><option value="rewrite">Rewriting</option></select>
+  <fieldset style="border:0;padding:0;margin:12px 0 0"><legend>Roles that must approve</legend>${Object.keys(RN).map(r=>`<label class="r"><input type="checkbox" class="pr" value="${r}">${RN[r]}</label>`).join("")}</fieldset>
+  <button class="btn" onclick="propose()">Propose change</button><button class="btn bad" onclick="force()">Apply alone</button>
+  <p class="st">A proposal needs the CEO and a manager. “Apply alone” shows the refusal.</p></section>`:"";
+ app.innerHTML=`${tb()}
+ <main id="content" tabindex="-1"><div class="next" role="status">${next}${items.length?` <button class="btn" style="margin:0 0 0 8px" onclick="openNotes('approvals')">Review approvals</button>`:""}</div>
+ <div class="stack"><section aria-labelledby="dh"><h2 id="dh">Documents</h2><label for="qs" style="margin-top:0">Search documents</label><input id="qs" type="search" value="${esc(q)}" oninput="setQ(this.value)" placeholder="Try payroll or board">
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label for="cf">Type</label><select id="cf" onchange="cat=this.value;render()">${["All",...Object.keys(CAT)].map(c=>`<option ${c===cat?"selected":""}>${c}</option>`).join("")}</select></div><div><label for="sf">Sort by</label><select id="sf" onchange="setSort(this.value)">${[["access","Access"],["az","Name A to Z"],["za","Name Z to A"],["type","Type"]].map(([v,l])=>`<option value="${v}" ${v===sortBy?"selected":""}>${l}</option>`).join("")}</select></div></div>
+ ${(L=>`<p class="count" role="status">${L.length} of ${S.docs.length} documents${q.trim()?` · understood as: ${terms(q).slice(0,6).join(", ")||"nothing"}`:""}</p>`+docList(L))(S.docs.filter(x=>nlMatch(x)&&(cat==="All"||x.cat===cat)))}</section>${admin}</div>
+ <div class="stack"><section aria-live="polite" class="${(a=>{anim=false;return a})(anim?"fade":"")}">${v}</section><section><details><summary>Audit log (${S.log.length})</summary><div class="log">${S.log.map(l=>`<div><time>${l.t}</time><span class="${l.bad?"no":""}">${l.m}</span></div>`).join("")}</div></details></section></div>
+ </main>${(p=>{pslide=false;return p})(panel(items))}`;const mm=document.getElementById("msgs");if(mm)mm.scrollTop=mm.scrollHeight}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&np){np=false;render()}});
+const nrm=t=>t.replace(/[đĐ]/g,"d").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const SYN=[["ngan sach","budget headcount bonus pool"],["budget","budget headcount bonus pool"],["hop dong","contract renews vendor"],["contract","contract vendor renews"],["nha cung cap","vendor supplier brightline summit"],["bien ban","minutes board"],["meeting","minutes board meeting"],["luong","salary payroll"],["salary","payroll salaries"],["bao mat","security phishing audit"],["nhan su","employee directory"],["kiem toan","audit"],["lich","calendar rota"]];
+const STOP=new Set("tim cac hien thi nhac den ngay quy truoc the and find show all with mention last quarter nhung cua trong cho co".split(" "));
+function terms(t){const n=nrm(t),o=[];SYN.forEach(([k,v])=>{if(n.includes(k))o.push(...v.split(" "))});n.split(/[^a-z0-9]+/).forEach(w=>{if(w.length>2&&!STOP.has(w))o.push(w)});return[...new Set(o)]}
+function nlMatch(x){if(!q.trim())return true;const h=nrm([x.title,x.cat,x.public||"",...(visOf(x)||[]).filter(l=>l!=null)].join(" "));return terms(q).some(w=>h.includes(w))}
+const wmText=()=>`${U[me].n} - ${new Date().toISOString().slice(0,16).replace("T"," ")}`;
+function effRoles(k){return[U[k].r,...(S.del||[]).filter(d=>d.to===k&&d.until>Date.now()).map(d=>U[d.from].r)]}
+function rec(id){S.rec=S.rec||{};S.rec[me]=[id,...(S.rec[me]||[]).filter(x=>x!==id)].slice(0,5)}
+function sweep(){let c=false;S.exp=S.exp||{};for(const k in S.exp)if(Date.now()>S.exp[k]){const[u,id]=k.split(":");delete S.exp[k];delete S.g[k];if(u===me)delete S.open[id];log(`${U[u].n}'s access to “${doc(id).title}” expired and was revoked.`);note(u,`Your access to “${doc(id).title}” expired.`);c=true}S.del=(S.del||[]).filter(d=>d.until>Date.now());return c}
+function revoke(k){const id=k.split(":")[1];delete S.g[k];delete(S.exp||{})[k];delete S.open[id];log(`${U[me].n} revoked their own access to “${doc(id).title}”.`);render()}
+function delegate(){const to=document.getElementById("dto").value,h=+document.getElementById("dhr").value;(S.del=S.del||[]).push({from:me,to,until:Date.now()+h*36e5});log(`${U[me].n} (${RN[U[me].r]}) delegated approvals to ${U[to].n} for ${h} h.`);note(to,`${U[me].n} delegated their ${RN[U[me].r]} approvals to you for ${h} h.`);render()}
+function undel(i){S.del.splice(i,1);render()}
+const left=ms=>Math.floor(ms/36e5)+"h "+Math.floor(ms%36e5/6e4)+"m";
+function dashHtml(){const ap=pend(),keys=Object.keys(S.g).filter(k=>k.startsWith(me+":")),ex=S.exp||{},ph=(visOf(doc("d12"))||[])[1],rc=(S.rec||{})[me]||[],mine=(S.del||[]).map((d,i)=>({...d,i})).filter(d=>d.from===me),inn=(S.del||[]).filter(d=>d.to===me);
+ const stat=(n,l,c)=>`<div class="card" style="text-align:center"><div style="font:600 34px 'Source Serif 4',Georgia,serif;color:${c||"var(--ink)"}">${n}</div><div class="st">${l}</div></div>`;
+ const bar=(l,n,m,u)=>`<div style="display:flex;gap:8px;align-items:center;margin:6px 0"><span style="flex:0 0 140px;font-size:14px">${l}</span><span style="flex:1;background:var(--cipher);border-radius:4px;height:14px"><i style="display:block;height:100%;width:${m?Math.min(100,n/m*100):0}%;background:var(--seal);border-radius:4px"></i></span><b>${n}${u||""}</b></div>`;
+ const R=S.reqs,gr=R.filter(x=>x.status==="used").length,L=r=>S.log.filter(l=>r.test(l.m)).length,pc=ph&&(ph.match(/(\d+)%/)||[])[1];
+ const alerts=[ph?`Phishing test: ${esc(ph)}`:"Phishing test results are sealed for your role.",ap?`${ap} approval${ap>1?"s":""} waiting for you.`:"",...keys.filter(k=>ex[k]&&ex[k]-Date.now()<36e5).map(k=>`Access to “${esc(doc(k.split(":")[1]).title)}” ends in under an hour.`),inn.length?`You are approving on behalf of ${inn.map(d=>RN[U[d.from].r]).join(", ")}.`:""].filter(Boolean);
+ return `<div class="dg dw"><h2 style="grid-column:1/-1;margin:0">Welcome, ${esc(U[me].n)}</h2>${stat(ap,"Approvals waiting",ap?"var(--seal)":"")}${stat(keys.length,"Documents you can open now")}${stat(R.filter(x=>x.by===me&&x.status==="pending").length,"Your requests pending")}${stat("Active","Account status · "+RN[U[me].r],"var(--ok)")}
+ <section><h2>Security alerts</h2>${alerts.map(a=>`<div class="nt">${a}</div>`).join("")}${ap?`<button class="btn" onclick="openNotes('approvals')">Review approvals</button>`:""}</section>
+ <section><h2>Recently viewed</h2>${rc.map(id=>`<button class="docrow" style="border-left-color:${CAT[doc(id).cat]}" onclick="sel='${id}';view='docs';render()"><span class="t">${doc(id).title}<small>${doc(id).cat}</small></span></button>`).join("")||`<p class="empty">Nothing yet. Open a document from the list.</p>`}</section>
+ <section><h2>Time-limited access</h2>${keys.map(k=>{const id=k.split(":")[1];return `<div class="req"><b>${esc(doc(id).title)}</b> (${S.g[k]})<br><span class="st">${ex[k]?"Ends in "+left(ex[k]-Date.now()):"Direct access, no expiry"}</span>${ex[k]?` <button class="btn alt" style="margin:4px 0 0 8px;min-height:36px" onclick="revoke('${k}')">Revoke now</button>`:""}</div>`}).join("")||`<p class="empty">No active access.</p>`}</section>
+ ${["manager","admin","ceo"].includes(U[me].r)?`<section><h2>Delegate approvals</h2><p class="st">Let someone approve as ${RN[U[me].r]} while you are away.</p><label for="dto">Delegate to</label><select id="dto">${Object.keys(U).filter(k=>k!==me).map(k=>`<option value="${k}">${esc(U[k].n)}, ${RN[U[k].r]}</option>`).join("")}</select><label for="dhr">For</label><select id="dhr"><option value="8">8 hours</option><option value="24">24 hours</option><option value="168">7 days</option></select><button class="btn" onclick="delegate()">Delegate</button>${mine.map(d=>`<div class="req">${esc(U[d.to].n)} until ${new Date(d.until).toLocaleString()} <button class="btn alt" style="margin:0 0 0 8px;min-height:36px" onclick="undel(${d.i})">End</button></div>`).join("")}</section>`:""}
+ <section class="dw"><h2>Audit analytics</h2>${bar("Requests sent",R.length,Math.max(R.length,1))}${bar("Granted",gr,Math.max(R.length,1))}${bar("Pending",R.filter(x=>x.status==="pending").length,Math.max(R.length,1))}${bar("Documents opened",L(/ opened /),Math.max(L(/ opened /),5))}${bar("Rewrites saved",L(/ rewrote /),Math.max(L(/ rewrote /),5))}${bar("Access expired or revoked",L(/revoked/),Math.max(L(/revoked/),5))}${bar("Approval success rate",R.length?Math.round(gr/R.length*100):0,100,"%")}${pc?bar("Staff passing phishing test",100-pc,100,"%"):""}</section></div>`}
+function render(){sweep();render0();if(!me)return;if(view==="dash"){const m=document.getElementById("content");if(m&&m.tagName==="MAIN"){m.style.display="block";m.innerHTML=dashHtml()}}document.querySelectorAll(".plain,.vrows").forEach(e=>{if(!e.querySelector(".wmo")){const o=document.createElement("div");o.className="wmo";o.setAttribute("aria-hidden","true");o.textContent=(wmText()+"   ").repeat(160);e.appendChild(o)}})}
+setInterval(()=>{if(me&&sweep())render()},20000);
+
+function openRows(d,o){const an=o.fresh,cl=o.closing;o.fresh=false;return `<div class="vault${cl?" cl":""}"><div class="vhead"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg><div><b>Decrypted for ${esc(U[me].n)}</b><span>All ${d.ln.length} lines are open. Closing the document seals them again.</span></div></div><div class="vrows">${o.text.split("\n").map((t,i)=>`<div class="vrow"><span class="vl okl">${LV[d.lv[i]]}</span>${an||cl?`<span class="vtext rv" style="--d:${i*120}ms"><span class="sealed" aria-hidden="true" style="width:${52+(d.ln[i]||d.ln[0]).ct[0]%46}%">${"•".repeat(28)}</span><span class="tx">${esc(t)}</span></span>`:`<span class="vtext">${esc(t)}</span>`}</div>`).join("")}</div></div>`}
+
+init();
+</script></body></html>
