@@ -1,32 +1,33 @@
-# rmithackathon26
+# RMIT HACKATHON 2026: UNLOCKED
 [![Built with TideCloak](https://tide.org/badges/built-with-tidecloak.svg)](https://tide.org/tidecloak?utm_source=github&utm_medium=readme&utm_campaign=unlocked)
 
-## Project overview
+## Project T-link:
 
-_One-sentence description of your project._
-
+T-link is a secure, role-based document vault where sensitive company files are encrypted line by line, requiring multi-party quorum approvals to read or rewrite sensitive data.
 Built with [TideCloak](https://tide.org/tidecloak?utm_source=github&utm_medium=readme&utm_campaign=unlocked).
 
 ### 1. Vision & originality
 
-<!-- What new product, service, experience or way of working are you proposing? What makes your idea distinctive? -->
+We’re introducing a granular document security model where files aren't just locked as a whole—instead, individual lines carry different security levels. Traditional access control is often an all-or-nothing affair, but T-link lets organizations securely mix public, staff-only, and executive-only data within the exact same document, backed by multi-role approval workflows.
 
 ### 2. Trust constraint insight
 
-<!-- What is difficult, risky or impossible today because trust, privacy or security gets in the way? Explain what becomes possible when that constraint is removed. -->
+Today, sharing sensitive reports usually means stripping out details or trusting people with full documents they only need a peek at. This creates massive data leak risks. When you remove that constraint with line-by-line cryptographic masking and team-based sign-offs, teams can collaborate safely on sensitive files (like payroll or acquisition term sheets) without over-exposing confidential data.
 
 ### 3. Value & impact
 
-<!-- Who would benefit, and how would their lives or work improve? Give a concrete example of why this matters. -->
+HR professionals, finance leads, and executives benefit by retaining strict compliance without grinding daily operations to a halt. For instance, an HR manager can look at an employee directory while sensitive home addresses and phone numbers stay sealed until the proper multi-party approvals are unlocked.
 
 ### 4. Why TideCloak matters
 
-<!-- How does your application use TideCloak, and how does that integration help enable your idea? Connect the technology to the possibility you are demonstrating. -->
-
+TideCloak serves as the foundational security layer for T-link by replacing vulnerable password-based logins with passwordless authentication. By establishing tamper-proof user identity and strictly enforcing role assignments TideCloak ensures that multi-party quorum approvals cannot be forged or bypassed. This enables client-side AES-GCM decryption of sensitive document lines only when genuine, cryptographically verified authorizations are granted.
 ### 5. Prototype & storytelling
 
-<!-- What does your prototype demonstrate today? Describe the key interaction judges should look for. -->
+The interactive prototype demonstrates a fully functional multi-role workspace featuring six pre-loaded encrypted documents across HR, Finance, and Executive categories. Judges can test the system by logging into different demo accounts to see how visibility levels dynamically adjust permissions in real time. Users can submit access requests for sealed document lines, switch accounts to fulfill required multi-party quorum approvals, and track live updates in the audit log and approval inbox.
 
 ## Setup
 
-<!-- How to install and run the prototype. -->
+To run the prototype locally:
+1.Clone the repository.
+2.Open index.html in your web browser or serve it via a local development server (e.g., npx serve or Live Server).
+3.Sign in using any of the built-in demo accounts (password for all is demo1234).
